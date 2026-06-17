@@ -1,0 +1,10 @@
+name = str.("")
+hello = str.("Hello, ")
+exclamation_mark = str.("!")
+
+terminal.readln.(name|"Enter your name: ")
+
+hello = str.(hello + name)
+result = str.(hello + exclamation_mark)
+
+terminal.writeln.(result)
