@@ -1,0 +1,10 @@
+terminal.readln.(a|"Enter the first number: ")
+
+terminal.readln.(b|"Enter the second number: ")
+
+a = int.(a)
+b = int.(b)
+
+result = a + b
+terminal.writeln.("The sum is: ")
+terminal.writeln.(result)
