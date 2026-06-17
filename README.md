@@ -10,7 +10,7 @@ Dot Language Interpreter is an interpreter for my programming language Dot, writ
 - Added new math operations
 - New example programs in Dot's repository
 
-For the full changelog, visit: [this website](https://github.com/OatBred13/Dot-interpreter/commits/v.0.6.0)
+For the full changelog visit: [this website](https://github.com/OatBred13/Dot-interpreter/compare/v.0.5.0...v.0.6.0)
 
 # Features
 - Variables
