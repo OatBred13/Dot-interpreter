@@ -6,6 +6,7 @@ empty_lines = []
 index = 0
 
 def int_convert(value):
+    is_error = "false"
     value = value.strip()
     if '"' in value:
         value = value.strip('"')
@@ -14,10 +15,14 @@ def int_convert(value):
         value = int(value)
         return value
     except Exception as e:
-        terminal_write(f"Dot.Convert.Error: Cannot convert {value} to an integer. Err_cd: 4 {e}")
+        terminal_write(f"Line: {index + len(empty_lines)}. Dot.Type.Error: Cannot convert '{value}' into an integer. Err_cd: 14")
+        is_error = "true"
+
+    return is_error
 
 def create_var(name, value):
     math_operation = False
+    is_error = False
     
     if value == "null":
         value = None
@@ -38,6 +43,7 @@ def create_var(name, value):
         variables[name] = value_convert
             
     elif value.startswith("str.") and '"' in value and '"' in value:
+        is_error = "false"
         math_operation = True
         start_ixd = value.find("(") + 1
         end_ixd = value.find(")")
@@ -88,7 +94,8 @@ def create_var(name, value):
         try:
             value = float(value)
         except:
-            terminal_write(f"Dot.Convert.Error: Cannot convert {value} into a float.")
+            terminal_write(f"Dot.Convert.Error: Cannot convert '{value}' into a float.")
+            is_error = "true"
     
     elif "+" in value or "-" in value or "*" in value or "/" in value:
         math_operation = True
@@ -100,13 +107,21 @@ def create_var(name, value):
             op = "*"
         elif "/" in value:
             op = "/"
+        elif "**" in value:
+            op = "**"
+        elif "//" in value:
+            op = "//"
+        else:
+            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: Wrong operand used. Please ensure the math operation is one of these: +, -, /, *, **, //. Err_cd: 16")
+            is_error = "true"
+            return is_error
 
         argument_one, argument_two = value.split(op)
         argument_one = argument_one.strip()
         argument_two = argument_two.strip()
 
         if argument_one in variables:
-            argument_one = variables.get(argument_one)
+            argument_one = variables[argument_one]
         else:
             try:
                 argument_one = float(argument_one)
@@ -114,10 +129,12 @@ def create_var(name, value):
                 if argument_one.startswith('"') and argument_one.endswith('"'):
                     argument_one = argument_one.strip('"')
                 else:
-                    terminal_write("Dot.Type.Error: Wrong type assigned. Please ensure that the text value is in quotation marks. Err_cd: 5")
+                    terminal_write(f"Dot.Type.Error: Wrong type assigned. Please ensure that '{argument_one}' is in quotation marks. Err_cd: 5")
+                    is_error = "true"
+                    return is_error
 
         if argument_two in variables:
-            argument_two = variables.get(argument_two)
+            argument_two = variables[argument_two]
         else:
             try:
                 argument_two = float(argument_two)
@@ -125,16 +142,27 @@ def create_var(name, value):
                 if argument_two.startswith('"') and argument_two.endswith('"'):
                     argument_two = argument_two.strip('"')
                 else:
-                    terminal_write("Dot.Type.Error: Wrong type assigned. Please ensure that the text value is in quotation marks. Err_cd: 5")
+                    terminal_write(f"Dot.Type.Error: Wrong type assigned. Please ensure that '{argument_two}' is in quotation marks. Err_cd: 5")
+                    is_error = "true"
+                    return is_error
 
-        if op == "+":
-            result = argument_one + argument_two
-        elif op == "-":
-            result = argument_one - argument_two
-        elif op == "*":
-            result = argument_one * argument_two
-        elif op == "/":
-            result = argument_one / argument_two
+        try:
+            if op == "+":
+                result = argument_one + argument_two
+            elif op == "-":
+                result = argument_one - argument_two
+            elif op == "*":
+                result = argument_one * argument_two
+            elif op == "/":
+                result = argument_one / argument_two
+            elif op == "**":
+                result = argument_one ** argument_two
+            elif op == "//":
+                result = argument_one // argument_two
+        except:
+            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: Wrong variable type used in the operation. Please ensure the type of the argument is either an int or a float. Err_cd: 17.")
+            is_error = "true"
+            return is_error
 
         try:
             try:
@@ -142,10 +170,14 @@ def create_var(name, value):
             except:
                 variables[name] = float(result)
         except:
-            terminal_write("Dot.Type.Error: Cannot convert the sum of given arguments into a float. Err_cd: 13")
+            terminal_write("Dot.Type.Error: Cannot convert the sum of given arguments into a float or an integer. Err_cd: 13")
+            is_error = "true"
     
     else:
-        terminal_write(f"Dot.Type.Error: No type assigned to a variable, and it isn't a math operation. Please check the type definition. Err_cd: 12, {e}")
+        terminal_write(f"Dot.Type.Error: No type assigned to a {value}, and it isn't a math operation. Please check the type definition. Err_cd: 12, {e}")
+        is_error = "true"
+
+    return is_error
             
 def string_var_operations(name, name2):
     if name in variables:
@@ -167,21 +199,35 @@ def string_var_operations(name, name2):
     return value
 
 def var_type_get(name):
+    is_error = "false"
     try:
         value = variables[name]
         value = type(value)
-        terminal_write(value)
     except Exception as e:
-        terminal_write(f"Dot.Syntax.Error: Given variable does not exist. Please ensure that the variable exist. Err_cd: 8 {e}")
+        terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: '{name}' variable does not exist. Please ensure that the variable exist. Err_cd: 8.")
+        is_error = "true"
+        value = None
+
+    return value, is_error
 
 def console_read_line(text, name):
     value = input(text)
 
     if "int." in name:
-        value = int(value)
+        try:
+            value = int(value)
+            variables[name] = value
+        except:
+            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Type.Error: Cannot convert '{value}' into an integer. Err_cd: 14")
+            is_error = "true"
 
     elif "float." in name:
-        value = int(float)
+        try:
+            value = float(value)
+            variables[name] = value
+        except:
+            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Type.Error: Cannot convert '{value}' into a float. Err_cd: 15")
+            is_error = "true"
     
     else:
         value = f'str.("{value}")'
@@ -213,6 +259,7 @@ def loop_start(repetitions, start_index):
             parse_and_execute(i)
                 
 def condition(condition, start_index):
+    is_error = "false"
     blocks_if_true = []
     blocks_if_false = []
     i = start_index + 1
@@ -243,9 +290,10 @@ def condition(condition, start_index):
                 parse_and_execute(i)
 
     except Exception as e:
-        terminal_write(f"Dot.Syntax.Error: Condition is not properly formatted. Err_cd: 11, {e}")
+        terminal_write(f"Line: {index + len(empty_lines)} Dot.Syntax.Error: Condition is not properly formatted. Err_cd: 11. {e}")
+        is_error = "true"
 
-    return jump
+    return jump, is_error
 
 def normalize(value):
         value = value.strip()
@@ -319,11 +367,12 @@ def while_loop(condition, start_index):
     return jump
 
 def parse_and_execute(command):
-    
+    jump = None
+    is_error = "false"
     if command == "}":
         return
     
-    elif command.startswith("terminal.write."):
+    elif command.startswith("terminal.writeln."):
         start_ixd = command.find("(") + 1
         end_ixd = command.find(")")
         argument = command[start_ixd:end_ixd]
@@ -337,7 +386,8 @@ def parse_and_execute(command):
             terminal_write(argument_var)
 
         else:
-            terminal_write("Dot.Value.Error: No proper argument given. Err_cd: 2")
+            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Value.Error: No proper argument given for the terminal.writeln.() function. Err_cd: 2")
+            is_error = "true"
     
     elif command.startswith("if."):
         start_ixd = command.find("(") + 1
@@ -356,15 +406,20 @@ def parse_and_execute(command):
     elif "=" in command:
         name, value = command.split(" = ", 1)
         name = name.strip()
-        create_var(name, value)
+        is_error = create_var(name, value)
         
     elif command.startswith("type."):
         start_ixd = command.find("(") + 1
         end_ixd = command.find(")")
         name = command[start_ixd:end_ixd]
-        var_type_get(name)
+        value, is_error = var_type_get(name)
+
+        if value is not None:
+            terminal_write(value)
+        else:
+            pass
     
-    elif command.startswith("terminal.readline."):
+    elif command.startswith("terminal.readln."):
         start_ixd = command.find("(") + 1
         end_ixd = command.find(")")
         text_raw = command[start_ixd:end_ixd]
@@ -375,17 +430,21 @@ def parse_and_execute(command):
             console_read_line(text, name)
         
         else:
-            terminal_write("Dot.Syntax.Error: Cannot execute terminal.readline.() using the given argument. Please ensure that the argument is in quotation marks. Err_cd: 7")
+            terminal_write(f"Line: {lines + len(empty_lines)}. Dot.Syntax.Error: Cannot execute terminal.readline.() using the given argument. Please ensure that the argument is in quotation marks. Err_cd: 7")
+            is_error  = "true"
     
     elif command == "dot.(help)":
-        terminal_write("dot.(exit) - terminates Dot.")
-        terminal_write("dot.(runfile) - opens a menu for firstly selecting a file and then executing it.")
-        terminal_write("dot.(debug) - opens the debug mode.")
-        terminal_write("terminal.write.(argument) - writes the given argument in the terminal.")
+        terminal_write("dot.(exit) - terminates Dot")
+        terminal_write("dot.(runfile) - opens a menu for firstly selecting a file and then executing it")
+        terminal_write("dot.(debug) - opens the debug mode")
+        terminal_write("dot.(version) - displays the current version of Dot")
+        terminal_write("dot.(info) - displays information about Dot.")
+        terminal_write("dot.(help) - displays the help information")
+        terminal_write("terminal.write.(argument) - writes the given argument in the terminal")
         terminal_write("terminal.readline.(name|question) - aks the user for a value")
-        terminal_write("name = type.(value) - creates a variable with the given name, type and value.")
-        terminal_write("type.(name) - displays the type of a given variable.")
-        terminal_write("pass - Does nothing. Can be used in loops or conditions when no action is required.")
+        terminal_write("name = type.(value) - creates a variable with the given name, type and value")
+        terminal_write("type.(name) - displays the type of a given variable")
+        terminal_write("pass - does nothing. Can be used in loops or conditions when no action is required")
         
     elif command.startswith("loop.") and command.endswith("{"):
         start_ixd = command.find("(") + 1
@@ -428,14 +487,16 @@ def parse_and_execute(command):
         pass
 
     else:
-            terminal_write(f"Line {index + len(empty_lines)}. Dot.Syntax.Error: {command} command does not exist. Err_cd: 3")
+        terminal_write(f"Line {index + len(empty_lines)}. Dot.Syntax.Error: {command} command does not exist. Err_cd: 3")
+        is_error = "true"
         
-    try:
-        return jump
-    except:
-        pass
+    if jump is not None:
+        jump = 0
+
+    return jump, is_error
         
-terminal_write("Dot v.0.5.0 Beta")
+terminal_write("Dot v.0.6.0")
+terminal_write("For more information visit: https://github.com/OatBred13/Dot-interpreter")
 terminal_write("Enter dot.(help) for help.")
 
 while True:
@@ -461,10 +522,15 @@ while True:
         start_time = time.perf_counter()
         index = 0
         while index < len(lines):
+            jump = None
             if lines[index] == "exit.()":
                 break
+            
+            jump, is_error = parse_and_execute(lines[index])
+            
+            if is_error == "true":
+                break
 
-            jump = parse_and_execute(lines[index])
             if jump is not None:
                 index = jump + 1
             else:
@@ -473,10 +539,13 @@ while True:
         print(f"Executed in {end_time - start_time:.6f} seconds.")
 
     elif command == "dot.(version)":
-        terminal_write("Dot v.0.5.0 Beta")
+        terminal_write("Dot v.0.6.0")
         
     elif command == "dot.(exit)":
         quit()
+
+    elif command == "dot(info)":
+        terminal_write("For more information visit: https://github.com/OatBred13/Dot-interpreter")
 
     elif command == "dot.(debug)":
         index = 0
@@ -487,6 +556,7 @@ while True:
         if file_path == "cancel" or file_name == "cancel":
             continue
         try:
+            jump = None
             file_final = Path(file_path) / file_name
             with open(file_final, "r") as f:
                 lines = [line.strip() for line in f]
@@ -494,7 +564,14 @@ while True:
             start_time = time.perf_counter()
             index = 0
             while index < len(lines):
-                jump = parse_and_execute(lines[index])
+                if lines[index] == "exit.()":
+                    break
+
+                jump, is_error = parse_and_execute(lines[index])
+                
+                if is_error == "true":
+                    break
+                
                 if jump is not None:
                     index = jump + 1
                 else:
