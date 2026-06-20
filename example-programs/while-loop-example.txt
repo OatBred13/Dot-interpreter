@@ -2,7 +2,7 @@ answer = str.("")
 password = str.("admin123")
 
 while.(answer != password) {
-    terminal.readln.(answer|"Enter a password: ")
+    readln.(answer|"Enter a password: ")
 }
 
-terminal.writeln.("Logging in...")
+writeln.("Logging in...")
