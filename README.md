@@ -1,15 +1,11 @@
-# Dot Language Interpreter v0.6.3
+# Dot Language Interpreter v0.6.5
 
 Dot Language Interpreter is an interpreter for a programming language called Dot. The interpreter itself is written in Python.
 
-# Dot v0.6.3 changelog:
-- The argument parsing of commands was turned into a function
-- The error with entering an empty line in REPL mode was removed 
-- The is_error variable is now a bool
-- Simple math operation (addition, subtraction, multiplication and division) now supports multiple numbers (2 + 5 + 6, 5 * 3 * 2, etc.)
-- terminal.writeln.() and terminal.readln.() Functions were shortened into writeln.() and readln.()
-- Expanded the error handling
-- Upgraded debug mode
+# Dot v0.6.5 changelog:
+- Added the modulo math operation (%)
+- The readln.() function can now ask for input without storing it in a variable
+- Fixed the divide(numbers) function
 
 # Features
 - Variables
@@ -19,8 +15,8 @@ Dot Language Interpreter is an interpreter for a programming language called Dot
 - Basic math operations (addition, subtraction, multiplication, division, raising to the power, division without a remainder)
 - Terminal I/O (`writeln.()`, `readln.()`)
 - Loops (`loop.(n)`, `while.(condition)`)
-- Conditions (`if.(condition)`)
-- Commends (#, #* *#)
+- Conditions (`if.(condition) {`, `} else {`)
+- Comments (#, #* *#)
 
 # REPL mode
 <.>>> x = str.("Hello World!")
@@ -40,7 +36,7 @@ Enter the file's name: script.txt
 
 - No proper argument given (for `writeln.(argument)`): *Dot.Value.Error: No proper argument given. Err_cd: 2*, Fix: Enter text with quotation marks or enter an existing variable name
 
-- Non-existing command (both for console and execution mode): *Line (line number). Dot.Syntax.Error: (non_existing_command) command does not exist. Err_cd: 3*, Fix: Check if the command is written properly
+- Non existing command (both for console and execution mode): *Line (line number). Dot.Syntax.Error: (non_existing_command) command does not exist. Err_cd: 3*, Fix: Check if the command is written properly
 
 - A string saved into a variable **without** quotation marks (both for console and execution mode): *Dot.Type.Error: Wrong type assigned. Please ensure that the text value is in quotation marks. Err_cd: 5*, Fix: Enter the text in quotation marks
 
@@ -50,7 +46,7 @@ Enter the file's name: script.txt
 
 - Variable does not exist (both in console and execution mode): *Dot.Syntax.Error: Given variable does not exist. Please ensure that the variable exist. Err_cd: 8*, Fix: make sure the variable exist
 
-- Wrong file's name or path: *Dot.File.Error: Cannot open the file. Please ensure that the file path and name are correct. Err_cd: 10*, Fix: make sure that the name and path of the file you're trying to execute are correct
+- Wrong file name or path: *Dot.File.Error: Cannot open the file. Please ensure that the file path and name are correct. Err_cd: 10*, Fix: make sure that the name and path of the file you're trying to execute are correct
 
 - The condition in if's or while loops is not properly formatted: *Dot.Syntax.Error: Condition is not properly formatted. Err_cd: 11*, Fix: make sure that the condition is in `if./while.(value1 logic_sign value2)` format.
 
@@ -72,7 +68,7 @@ Enter the file's name: script.txt
 In the terminal, enter this command:
 `git clone https://github.com/OatBred13/Dot-interpreter.git`
 
-Or go to [this website](https://github.com/OatBred13/Dot-interpreter.git) and download the latest release.
+Or go to [this website](https://github.com/OatBred13/Dot-interpreter.git) and download the lastest release.
 
 # Running the interpreter
 
@@ -126,7 +122,7 @@ To report bugs, either contact underscore bred underscore (Markdown formatting c
 
 # Contributing & Feeback
 
-Pull requests or modifications to the Dot interpreter are welcome! For major changes, though, please open an issue first.
+Pull requests or modifications to the Dot interpreter are welcome! For major changes though, please open an issue first.
 
 Feedback is very much welcome, too! If you tried to code something in Dot yourself, and something crashed or didn't work as expected, create an issue or contact me.
 
