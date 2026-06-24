@@ -2,6 +2,7 @@
 from pathlib import *
 import time
 import sys
+import random
 
 # Set the max amount of integer digits in a string, using the sys.set_int_max_str_digits function from the sys library
 sys.set_int_max_str_digits(1000000000)
@@ -48,12 +49,13 @@ def mltp(numbers):
     return result
 
 def divide(numbers):
-    first_number = numbers[0]
-    division_n = 0
-    for i in numbers:
-        division_n += i
+    result = numbers[0]
+    
+    for num in numbers[1:]:
+        if num == 0:
+            return "Error: Division by zero."
+        result /= num
 
-    result = first_number / division_n
     return result
 
 def string_convert(argument):
@@ -352,7 +354,10 @@ def normalize(value):
             value = int(value)
 
         except:
-            pass
+            try:
+                value = float(value)
+            except:
+                pass
 
         return value
 
@@ -417,7 +422,8 @@ def while_loop(condition, start_index):
     return jump, is_error
 
 def parse_and_execute(command):
-    jump = None
+    return_value = None
+    jump = 0
     is_error = False
     if command == "}":
         return
@@ -425,7 +431,7 @@ def parse_and_execute(command):
     elif command.startswith("writeln."):
         value = parse_argument(command)
         try:
-            if value not in variables:
+            if value not in variables and value.startswith('"') and value.endswith('"'):
                 argument = normalize(value)
                 terminal_write(argument)
 
@@ -470,22 +476,32 @@ def parse_and_execute(command):
     elif command.startswith("readln."):
         text_raw = parse_argument(command)
 
-        try:
-            name, text = text_raw.split("|")
-        except:
-            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: No '|' present in terminal.readln.() function.")
-            is_error = True
-            return is_error
+        if "|" in text_raw:
+            try:
+                name, text = text_raw.split("|")
+            except:
+                terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: No '|' present in terminal.readln.() function.")
+                is_error = True
+                return is_error
         
-        try:
-            text = text.strip('"')
-            read_line(text, name)
+            try:
+                text = text.strip('"')
+                read_line(text, name)
 
-        except:
-            terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: Cannot execute readline.() using the given argument. Please ensure that the argument is in quotation marks. Err_cd: 7")
-            is_error  = True
-            return is_error
-    
+            except:
+                terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: Cannot execute readline.() using the given argument. Please ensure that the argument is in quotation marks. Err_cd: 7")
+                is_error  = True
+                return is_error
+
+        else:
+            try:
+                text = text_raw.strip('"')
+                input(text)
+            except:
+                terminal_write(f"Line: {index + len(empty_lines)}. Dot.Syntax.Error: Cannot execute readline.() using the given argument. Please ensure that the argument is in quotation marks. Err_cd: 7")
+                is_error  = True
+                return is_error
+
     elif command == "dot.(help)":
         terminal_write("dot.(exit) - terminates Dot")
         terminal_write("dot.(runfile) - opens a menu for firstly selecting a file and then executing it")
@@ -511,8 +527,7 @@ def parse_and_execute(command):
                 pass
 
         loop_start(repetitions, index)
-        
-        
+
     elif command == "":
         empty_lines.append("_")
 
@@ -543,7 +558,7 @@ def parse_and_execute(command):
 
     return jump, is_error
         
-terminal_write("Dot v.0.6.3")
+terminal_write("Dot v.0.6.5")
 terminal_write("For more information visit: https://github.com/OatBred13/Dot-interpreter")
 terminal_write("Enter dot.(help) for help.")
 
